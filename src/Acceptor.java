@@ -1,24 +1,33 @@
 /*
  * An instance of an acceptor agent from the Paxos protocol.
+ * Parameterized by the types of agents (A) and chosen values (V).
  */
-public class Acceptor<V> {
+public class Acceptor<A,V> {
     
-    // Highest numbered proposal accepted by this Acceptor
-    private ProposalNum highestAccepted;
     // Highest numbered prepare request to which this Acceptor has responded
     private ProposalNum highestPrepare;
+    // Highest numbered proposal this Acceptor has accepted
+    private ProposalNum highestAccepted;
     // Accepted value
     private V value;
+    // Class for sending messages to other agents
+    private Messenger messenger;
+    
+    /*
+     * Creates a new acceptor with the given messenger to communicate
+     * with other agents.
+     */
+    public Acceptor(Messenger messenger) {
+        this.messenger = messenger;
+    }
     
     /*
      * Implements Phase 1(b) of the protocol. 
      */
-    public synchronized boolean prepareRequest(ProposalNum proposalNum) {
-        if (proposalNum.greaterThan(highestPrepare)) {
+    public synchronized void prepareRequest(ProposalNum proposalNum, A agent) {
+        if (highestPrepare == null || proposalNum.greaterThan(highestPrepare)) {
             highestPrepare = proposalNum;
-            return true;
-        } else {
-            return false;
+            messenger.sendPromise(agent, proposalNum, highestAccepted, value);
         }
     }
     
@@ -26,9 +35,8 @@ public class Acceptor<V> {
      * Implements Phase 2(b) of the protocol.
      */
     public synchronized void acceptRequest(ProposalNum proposalNum, V value) {
-        if (proposalNum.greaterThanOrEqual(highestPrepare)) {
+        if (highestPrepare == null || proposalNum.greaterThanOrEqual(highestPrepare)) {
             this.value = value;
-            highestAccepted = proposalNum;
         }
     }
 }

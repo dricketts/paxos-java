@@ -46,4 +46,12 @@ public class ProposalNum {
         return num == rhs.num && uid == rhs.uid;
     }
     
+    /*
+     * Returns next highest proposal number for the given uid
+     */
+    public ProposalNum increment() {
+        // TODO: handle integer overflow
+        return new ProposalNum(num + 1, uid);
+    }
+    
 }
