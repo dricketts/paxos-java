@@ -1,7 +1,9 @@
+import java.io.Serializable;
+
 /*
  * Implements unique proposal numbers for Paxos.
  */
-public class ProposalNum {
+public class ProposalNum implements Serializable {
     
     private int num;
     private String uid;
@@ -43,7 +45,7 @@ public class ProposalNum {
      * Returns true iff this proposal number equals rhs.
      */
     public boolean equals(ProposalNum rhs) {
-        return num == rhs.num && uid == rhs.uid;
+        return num == rhs.num && uid.equals(rhs.uid);
     }
     
     /*
@@ -52,6 +54,10 @@ public class ProposalNum {
     public ProposalNum increment() {
         // TODO: handle integer overflow
         return new ProposalNum(num + 1, uid);
+    }
+    
+    public String toString() {
+        return uid + "," + num;
     }
     
 }
